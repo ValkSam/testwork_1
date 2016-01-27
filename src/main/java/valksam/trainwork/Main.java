@@ -1,25 +1,20 @@
 package valksam.trainwork;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import valksam.trainwork.controller.DataStorage;
 import valksam.trainwork.controller.EditFieldFormController;
 import valksam.trainwork.controller.RootController;
-import valksam.trainwork.model.Correspondence;
-import valksam.trainwork.service.XlsService;
+import valksam.trainwork.repository.HibernateUtil;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Created by Valk on 25.01.16.
@@ -28,6 +23,7 @@ public class Main extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
     private Stage formStage;
+    private Stage messStage;
 
     @Override
     public void start(Stage primaryStage) {
@@ -35,7 +31,18 @@ public class Main extends Application {
         primaryStage.setTitle("ValkSam test work");
         rootLayout = initAndShowRootLayout(primaryStage, "/view/root.fxml");
         AnchorPane body = initAndShowNestedBody(rootLayout, "/view/body.fxml");
-        formStage = initEditForm(primaryStage, "/view/editTblColName.fxml");
+        formStage = modalWindow(primaryStage, "/view/editTblColName.fxml", "Редактирование поля таблицы");
+        messStage = modalWindow(primaryStage, "/view/message.fxml", "");
+    }
+
+    @Override
+    public void stop(){
+        try {
+            System.out.println("end.");
+            HibernateUtil.shutdown();
+        } catch (Exception e) {
+            //нет смысла обрабатывать.
+        }
     }
 
     public Stage getPrimaryStage() {
@@ -44,6 +51,11 @@ public class Main extends Application {
 
     public Stage getFormStage() {
         return formStage;
+    }
+
+    public Stage getMessStage(String message) {
+        ((Label)messStage.getScene().getRoot().lookup("Label")).textProperty().set(message);
+        return messStage;
     }
 
     public BorderPane initAndShowRootLayout(Stage stage, String fxmlName) {
@@ -81,7 +93,7 @@ public class Main extends Application {
         return body;
     }
 
-    public Stage initEditForm(Stage rootStage, String fxmlName) {
+    public Stage modalWindow(Stage rootStage, String fxmlName, String title) {
         Stage formStage = null;
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -90,7 +102,7 @@ public class Main extends Application {
             Scene scene = new Scene(form);
             //
             formStage = new Stage();
-            formStage.setTitle("Редактирование поля таблицы");
+            formStage.setTitle(title);
             formStage.initModality(Modality.WINDOW_MODAL);
             formStage.initOwner(rootStage);
             formStage.setScene(scene);

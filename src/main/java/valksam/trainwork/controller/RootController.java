@@ -1,18 +1,13 @@
 package valksam.trainwork.controller;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import valksam.trainwork.Main;
 import valksam.trainwork.model.Correspondence;
 import valksam.trainwork.service.XlsService;
 
-import javax.swing.table.DefaultTableColumnModel;
 import java.io.File;
-import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
@@ -20,11 +15,8 @@ import java.util.stream.Collectors;
  */
 public class RootController {
 
-    @FXML //  fx:id="tableNameCombo"
-    private ComboBox<String> tableNameCombo;
-
-    @FXML //  fx:id="selectedTableName"
-    private Label selectedTableName;
+    @FXML //  fx:id="tableNameEdit"
+    private TextField tableNameEdit;
 
     @FXML //  fx:id="fileOpenButton"
     private Button fileOpenButton;
@@ -32,8 +24,8 @@ public class RootController {
     @FXML //  fx:id="selectedFileName"
     private Label selectedFileName;
 
-    @FXML //  fx:id="getColumnsButton"
-    private Button getColumnsButton;
+    @FXML //  fx:id="procFileButton"
+    private Button procFileButton;
 
     @FXML //  fx:id="dataTableColumnName"
     private TableColumn<Correspondence, String> dataTableColumnName;
@@ -55,29 +47,20 @@ public class RootController {
 
     private final String FILE_NOT_SELECTED = "Файл не выбран";
 
+    File xlsFile;
+
     @FXML
     private void initialize() {
-        tableNameCombo.getItems().add("Таблица 1");
-        tableNameCombo.getItems().add("Таблица 2");
-        tableNameCombo.getItems().add("Таблица 3");
-        //
-        selectedTableName.textProperty().bind(tableNameCombo.getSelectionModel().selectedItemProperty());
         selectedFileName.textProperty().set(FILE_NOT_SELECTED);
-        getColumnsButton.disableProperty().bind(
-                (selectedFileName.textProperty().isEqualTo(FILE_NOT_SELECTED)
+        procFileButton.disableProperty().bind(
+                selectedFileName.textProperty().isEqualTo(FILE_NOT_SELECTED)
                         .or(selectedFileName.textProperty().isEmpty())
-                        .or(selectedTableName.textProperty().isEmpty())));
-
-        /*DataStorage.correspondencesTable.add(new Correspondence("1"));
-        DataStorage.correspondencesTable.add(new Correspondence("2"));*/
-        /*columnsTable.setEditable(true);
-        dataTableColumnName.setEditable(true);*/
-
-        /*так не обновляется таблица после редактирования
-        fileColumnName.setCellValueFactory(new PropertyValueFactory<>("columnInFile"));
-        dataTableColumnName.setCellValueFactory(new PropertyValueFactory<>("columnInDataTable"));*/
-        fileColumnName.setCellValueFactory(data->data.getValue().getColumnInFile());
-        dataTableColumnName.setCellValueFactory(data->data.getValue().getColumnInDataTable());
+                        .or(tableNameEdit.textProperty().isEmpty()));
+        tableNameEdit.disableProperty().bind(selectedFileName.textProperty().isEqualTo(FILE_NOT_SELECTED)
+                .or(selectedFileName.textProperty().isEmpty()));
+        //
+        fileColumnName.setCellValueFactory(data -> data.getValue().getColumnInFile());
+        dataTableColumnName.setCellValueFactory(data -> data.getValue().getColumnInDataTable());
         columnsTable.setItems(DataStorage.correspondencesTable);
     }
 
@@ -86,16 +69,18 @@ public class RootController {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XLS files (*.xls)", "*.xls");
         fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
-        if (file != null) {
-            selectedFileName.textProperty().set(file.getAbsolutePath());
+        selectedFileName.textProperty().set("");
+        xlsFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
+        if (xlsFile != null) {
+            selectedFileName.textProperty().set(xlsFile.getAbsolutePath());
+            fillColumnsTable();
         }
     }
 
-    @FXML
-    private void onGetColumnsButtonAction() {
+    private void fillColumnsTable() {
+        assert (xlsFile != null);
         DataStorage.correspondencesTable.clear();
-        DataStorage.columnsMap.putAll(XlsService.getColumnNames(selectedFileName.textProperty().get()));
+        DataStorage.columnsMap.putAll(XlsService.getColumnNames(xlsFile));
         DataStorage.correspondencesTable.addAll(
                 DataStorage.columnsMap.values()
                         .stream()
@@ -103,9 +88,32 @@ public class RootController {
                         .collect(Collectors.toList()));
     }
 
+    private boolean validateValue(String value) {
+        return value.matches("^[a-zA-Z]+\\w+");
+    }
+
+    @FXML
+    private void onProcFileButtonAction() {
+        if (!validateValue(tableNameEdit.textProperty().get())) {
+            tableNameEdit.textProperty().set("");
+            tableNameEdit.promptTextProperty().set("Неверно введено имя");
+            return;
+        }
+        boolean scvResult = XlsService.createDbTable(xlsFile, tableNameEdit.textProperty().get(), DataStorage.columnsMap);
+        boolean gsonResult = XlsService.saveGSONSchema(tableNameEdit.textProperty().get(), DataStorage.correspondencesTable);
+        if (scvResult){
+            mainApp.getMessStage("Операция прошла успешно !").showAndWait();
+        } else {
+            mainApp.getMessStage("Данные не были сохранены в БД !").showAndWait();
+        }
+        if (! gsonResult){
+            mainApp.getMessStage("JSON lанные не были сохранены на диск !").showAndWait();
+        }
+    }
+
+
     @FXML
     private void onEditTableColumnNameAction(TableColumn.CellEditEvent<Correspondence, String> t) {
-        //((TextField)mainApp.getFormStage().getScene().getRoot().lookup("#editField")).textProperty().set(t.getOldValue());
         DataStorage.correspondence.setColumnInDataTable(t.getOldValue());
         mainApp.getFormStage().showAndWait();
         String newValue = DataStorage.correspondence.getColumnInDataTable().get();

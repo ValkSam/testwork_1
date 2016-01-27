@@ -1,15 +1,11 @@
 package valksam.trainwork.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import valksam.trainwork.Main;
-import valksam.trainwork.model.Correspondence;
-import valksam.trainwork.service.XlsService;
 
-import java.io.File;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +36,7 @@ public class EditFieldFormController {
     @FXML
     private void onOk() {
         String newValue = editField.textProperty().get();
-        if (! validateValue(newValue)){
+        if (!validateValue(newValue)) {
             messageLabel.textProperty().set("Неверно введено имя");
             return;
         }
@@ -48,8 +44,13 @@ public class EditFieldFormController {
         stage.close();
     }
 
-    private boolean validateValue(String value){
-        return value.matches("[a-zA-Z]{3,}");
+    private boolean validateValue(String value) {
+        return value.matches("^[a-zA-Z]+\\w+") &&
+                !DataStorage.correspondencesTable
+                        .stream()
+                        .map(e -> e.getColumnInDataTable().get())
+                        .collect(Collectors.toList())
+                        .contains(value);
     }
 
     @FXML
@@ -58,9 +59,9 @@ public class EditFieldFormController {
         stage.close();
     }
 
-    public void onStageShown(){
-        messageLabel.textProperty().set("");
-        editField.textProperty().set(DataStorage.correspondence.getColumnInDataTable().get());
+    public void onStageShown() {
+        if (messageLabel != null) messageLabel.textProperty().set("");
+        if (editField != null) editField.textProperty().set(DataStorage.correspondence.getColumnInDataTable().get());
     }
 
 
