@@ -21,6 +21,8 @@ public class Repository {
                 String sql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '" + tableName + "' ";
                 Query query = session.createSQLQuery(sql);
                 //
+                /*вариант - всегда убиваем таблицу
+                * так проще соблюсти порядок полей для разных сохранений*/
                 if (query.list().size() != 0) {
                     sql = "DROP TABLE " + tableName;
                     query = session.createSQLQuery(sql);
@@ -28,8 +30,8 @@ public class Repository {
                 }
                 sql = "CREATE TABLE " + tableName + " AS SELECT * FROM CSVREAD ('" + csvFile.getAbsolutePath() + "')";
 
-                /*вариант, не убивать таблицу, а просто чистить, но тогда имена столбцов остануться прежними.
-                можно это решить, но все зависит о требований
+
+                /*вариант, не убивать таблицу, а просто чистить
                 if (query.list().size() == 0) {
                     sql = "CREATE TABLE " + tableName + " AS SELECT * FROM CSVREAD ('" + csvFile.getAbsolutePath() + "')";
                 } else {
@@ -37,7 +39,8 @@ public class Repository {
                     query = session.createSQLQuery(sql);
                     query.executeUpdate();
                     sql = "INSERT INTO "+tableName+" SELECT * FROM CSVREAD ('" + csvFile.getAbsolutePath() + "')";
-                }*/
+                }
+                */
 
                 query = session.createSQLQuery(sql);
                 query.executeUpdate();

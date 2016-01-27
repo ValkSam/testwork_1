@@ -2,9 +2,11 @@ package valksam.trainwork.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import valksam.trainwork.model.Correspondence;
 
 import java.util.stream.Collectors;
 
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class EditFieldFormController {
     @FXML //  fx:id="editField"
-    private TextField editField;
+    private ComboBox editField;
 
     @FXML //  fx:id="okButton"
     private Button okButton;
@@ -35,10 +37,11 @@ public class EditFieldFormController {
 
     @FXML
     private void onOk() {
-        String newValue = editField.textProperty().get();
-        if (!validateValue(newValue)) {
-            messageLabel.textProperty().set("Неверно введено имя");
-            return;
+        String newValue = editField.getValue().toString();
+        for(Correspondence correspondence:DataStorage.correspondencesTable){
+            if (correspondence.getColumnInDataTable().get().toUpperCase().equals(newValue.toUpperCase())){
+                correspondence.setColumnInDataTable("");
+            }
         }
         DataStorage.correspondence.setColumnInDataTable(newValue);
         stage.close();
@@ -61,8 +64,14 @@ public class EditFieldFormController {
 
     public void onStageShown() {
         if (messageLabel != null) messageLabel.textProperty().set("");
-        if (editField != null) editField.textProperty().set(DataStorage.correspondence.getColumnInDataTable().get());
+        if (editField != null) {
+            editField.getItems().clear();
+            editField.getItems().addAll(DataStorage.currTableFieldNameList);
+            editField.setValue(DataStorage.correspondence.getColumnInDataTable().get());
+        }
     }
+
+
 
 
 }

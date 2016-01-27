@@ -13,7 +13,7 @@ public class Correspondence {
 
     public Correspondence(String columnInFile) {
         this.columnInFile = new SimpleStringProperty(columnInFile);
-        this.columnInDataTable = new SimpleStringProperty(columnInFile);
+        this.columnInDataTable = new SimpleStringProperty("");
     }
 
     public StringProperty getColumnInFile() {

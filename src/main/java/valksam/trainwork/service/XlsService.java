@@ -14,16 +14,19 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import valksam.trainwork.controller.DataStorage;
+import valksam.trainwork.dto.MappingInfoItem;
+import valksam.trainwork.dto.TableMapInfo;
 import valksam.trainwork.model.Correspondence;
+import valksam.trainwork.model.Table;
+import valksam.trainwork.model.Tables;
 import valksam.trainwork.repository.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Valk on 25.01.16.
@@ -63,32 +66,43 @@ public class XlsService {
         return result;
     }
 
+    public static List<String> getTablesList() {
+        return Arrays.asList(Tables.values())
+                .stream()
+                .map(Enum::toString)
+                .collect(Collectors.toList());
+    }
+
     public static boolean createDbTable(File xlsFile, String tableName, Map<Integer, String> columnMap) {
         File csvFile = XlsService.createCsv(xlsFile, columnMap);
         return csvFile != null && Repository.saveXlsData(tableName, csvFile);
     }
 
-    public static String saveGSONSchema(String jsonFileName, String tableName, ObservableList<Correspondence> correspondencesTable) {
+    public static String saveGSONSchema(String xlsFileName, String jsonFileName, String tableName, ObservableList<Correspondence> correspondencesTable) {
         String result = "";
-        ObjectMapper objectMapper = new ObjectMapper(){{
+        ObjectMapper objectMapper = new ObjectMapper() {{
             SimpleModule simpleModule = new SimpleModule();
-            simpleModule.addSerializer(StringProperty.class, new JsonSerializer<StringProperty>() {
+            simpleModule.addSerializer(Correspondence.class, new JsonSerializer<Correspondence>() {
                 @Override
-                public void serialize(StringProperty stringProperty, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-                      jsonGenerator.writeObject(stringProperty.get());
+                public void serialize(Correspondence correspondence, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+                    if (!"".equals(correspondence.getColumnInDataTable().get())) {
+                        jsonGenerator.writeObject(
+                                new MappingInfoItem(correspondence.getColumnInFile().get(),
+                                        correspondence.getColumnInDataTable().get()));
+                    }
                 }
             });
             registerModule(simpleModule);
         }};
-        try(
+        try (
                 StringWriter sw = new StringWriter();
-                )
-        {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(sw, correspondencesTable);
+        ) {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(sw, new TableMapInfo(xlsFileName, tableName.toUpperCase(), correspondencesTable));
+            //
             StringBuilder sb = new StringBuilder();
-            sb.append("{\n\t\""+tableName.toUpperCase()+"\": ").append(sw.toString()).append("\n}");
+            sb.append(sw.toString());
             Path path = Paths.get(jsonFileName);
-            Files.write(path,sb.toString().getBytes());
+            Files.write(path, sb.toString().getBytes());
             result = path.toFile().getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();

@@ -5,9 +5,11 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import valksam.trainwork.Main;
 import valksam.trainwork.model.Correspondence;
+import valksam.trainwork.model.Tables;
 import valksam.trainwork.service.XlsService;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,8 +18,8 @@ import java.util.stream.Collectors;
  */
 public class RootController {
 
-    @FXML //  fx:id="tableNameEdit"
-    private TextField tableNameEdit;
+    @FXML //  fx:id="tableNameCombo"
+    private ComboBox tableNameCombo;
 
     @FXML //  fx:id="fileOpenButton"
     private Button fileOpenButton;
@@ -56,13 +58,15 @@ public class RootController {
         procFileButton.disableProperty().bind(
                 selectedFileName.textProperty().isEqualTo(FILE_NOT_SELECTED)
                         .or(selectedFileName.textProperty().isEmpty())
-                        .or(tableNameEdit.textProperty().isEmpty()));
-        tableNameEdit.disableProperty().bind(selectedFileName.textProperty().isEqualTo(FILE_NOT_SELECTED)
+                        .or(tableNameCombo.getSelectionModel().selectedItemProperty().isNull()));
+        tableNameCombo.disableProperty().bind(selectedFileName.textProperty().isEqualTo(FILE_NOT_SELECTED)
                 .or(selectedFileName.textProperty().isEmpty()));
         //
         fileColumnName.setCellValueFactory(data -> data.getValue().getColumnInFile());
         dataTableColumnName.setCellValueFactory(data -> data.getValue().getColumnInDataTable());
         columnsTable.setItems(DataStorage.correspondencesTable);
+        //
+        tableNameCombo.getItems().addAll(XlsService.getTablesList());
     }
 
     @FXML
@@ -94,39 +98,84 @@ public class RootController {
     }
 
     private boolean validateColumnNames() {
-        Set<Correspondence> set = new HashSet<>();
-        set.addAll((Collection) DataStorage.correspondencesTable);
-        return set.size()==DataStorage.correspondencesTable.size()&&
-                DataStorage.correspondencesTable
+        List<String> mappedFields = DataStorage.correspondencesTable
                 .stream()
                 .map(e -> e.getColumnInDataTable().get())
-                .collect(Collectors.toList())
-                .stream()
-                        .allMatch(e -> e.matches("^[a-zA-Z]+\\w+"));
+                .filter(e->!"".equals(e))
+                .collect(Collectors.toList());
+        return mappedFields.size()==DataStorage.currTableFieldNameList.size();
+    }
+
+    private boolean makeMappingColumnsAndFields(String tableName) {
+        boolean result = false;
+        List<String> fileds = new ArrayList<>();
+        try {
+            Class clazz = Class.forName(Tables.valueOf(tableNameCombo.getValue().toString()).getClassName());
+            List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+            for (Field field : fields) {
+                for (Correspondence correspondence : DataStorage.correspondencesTable) {
+                    if (correspondence.getColumnInFile().get().toUpperCase().equals(
+                            field.getName().toUpperCase()
+                    )) {
+                        correspondence.setColumnInDataTable(field.getName());
+                        break;
+                    }
+                }
+            }
+            DataStorage.currTableFieldNameList.clear();
+            DataStorage.currTableFieldNameList.addAll((Collection)fields.stream().map(m->m.getName()).collect(Collectors.toList()));
+            result = true;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return result;
+
+    }
+
+    @FXML
+    private void onTableNameChanged(){
+        String tableName = tableNameCombo.getValue().toString();
+        if (!makeMappingColumnsAndFields(tableName)) {
+            mainApp.getMessStage("Таблица " + tableName + " не найдена !").showAndWait();
+            return;
+        }
     }
 
     @FXML
     private void onProcFileButtonAction() {
-        if (!validateValue(tableNameEdit.textProperty().get())) {
+        String tableName = tableNameCombo.getValue().toString();
+        if (!validateValue(tableName)) {
             mainApp.getMessStage("Не верно введено имя таблицы !").showAndWait();
             return;
         }
         if (!validateColumnNames()) {
-            mainApp.getMessStage("Среди столбцов есть столбец с не корректным именем !").showAndWait();
+            mainApp.getMessStage("Не все столбцы таблицы закреплены за столбцами xls файла !").showAndWait();
             return;
         }
-        boolean scvResult = XlsService.createDbTable(xlsFile, tableNameEdit.textProperty().get(), DataStorage.columnsMap);
+        //
+        //делаем версию DataStorage.columnsMap без незакрепленных столбцов
+        Map<Integer, String> finalColumnsMap = new TreeMap<>();
+        for(Map.Entry<Integer, String> entry:DataStorage.columnsMap.entrySet()){
+            if (!"".equals(DataStorage.correspondencesTable
+                    .stream()
+                    .filter(m -> m.getColumnInFile().get().toUpperCase().equals(entry.getValue().toUpperCase()))
+                    .findFirst().get().getColumnInDataTable().get())){
+                finalColumnsMap.put(entry.getKey(),entry.getValue());
+            }
+        }
+        //
+        boolean scvResult = XlsService.createDbTable(xlsFile, tableName, finalColumnsMap);
         String jsonFileName = xlsFile.getName();
         int index = jsonFileName.lastIndexOf('.');
-        if(index > 0) jsonFileName = jsonFileName.substring(0, index);
-        jsonFileName =  jsonFileName +"-"+ Math.abs(new Random().nextInt()) + ".json";
-        String gsonResult = XlsService.saveGSONSchema(jsonFileName, tableNameEdit.textProperty().get(), DataStorage.correspondencesTable);
-        if (scvResult){
+        if (index > 0) jsonFileName = jsonFileName.substring(0, index);
+        jsonFileName = jsonFileName + "-" + Math.abs(new Random().nextInt()) + ".json";
+        String gsonResult = XlsService.saveGSONSchema(xlsFile.getAbsolutePath(), jsonFileName, tableName, DataStorage.correspondencesTable);
+        if (scvResult) {
             mainApp.getMessStage("Операция прошла успешно !").showAndWait();
         } else {
             mainApp.getMessStage("Данные не были сохранены в БД !").showAndWait();
         }
-        if (gsonResult.isEmpty()){
+        if ("".equals(gsonResult)) {
             mainApp.getMessStage("JSON данные не были сохранены на диск !").showAndWait();
         } else {
             mainApp.getMessStage("JSON сохранен в " + gsonResult).showAndWait();
