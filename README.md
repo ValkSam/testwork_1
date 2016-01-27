@@ -120,7 +120,7 @@
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><B>файл, с которым
-тестировал &mdash; <SPAN LANG="en-US">aaa.xls &ndash; </SPAN><SPAN LANG="ru-RU">прилагается</SPAN></B></P>
+тестировал &mdash; <SPAN LANG="en-US">aaa.xls &ndash; </SPAN><SPAN LANG="ru-RU">прилагается (в main)</SPAN></B></P>
 <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P ALIGN=CENTER STYLE="margin-bottom: 0cm"><BR>
