@@ -31,7 +31,7 @@ public class Main extends Application {
         primaryStage.setTitle("ValkSam test work");
         rootLayout = initAndShowRootLayout(primaryStage, "/view/root.fxml");
         AnchorPane body = initAndShowNestedBody(rootLayout, "/view/body.fxml");
-        formStage = modalWindow(primaryStage, "/view/editTblColName.fxml", "Редактирование поля таблицы");
+        formStage = modalWindow(primaryStage, "/view/editTblColName.fxml", "Editing table field name");
         messStage = modalWindow(primaryStage, "/view/message.fxml", "");
     }
 
