@@ -8,6 +8,7 @@ import valksam.trainwork.model.Correspondence;
 import valksam.trainwork.service.XlsService;
 
 import java.io.File;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -92,22 +93,43 @@ public class RootController {
         return value.matches("^[a-zA-Z]+\\w+");
     }
 
+    private boolean validateColumnNames() {
+        Set<Correspondence> set = new HashSet<>();
+        set.addAll((Collection) DataStorage.correspondencesTable);
+        return set.size()==DataStorage.correspondencesTable.size()&&
+                DataStorage.correspondencesTable
+                .stream()
+                .map(e -> e.getColumnInDataTable().get())
+                .collect(Collectors.toList())
+                .stream()
+                        .allMatch(e -> e.matches("^[a-zA-Z]+\\w+"));
+    }
+
     @FXML
     private void onProcFileButtonAction() {
         if (!validateValue(tableNameEdit.textProperty().get())) {
-            tableNameEdit.textProperty().set("");
-            tableNameEdit.promptTextProperty().set("Неверно введено имя");
+            mainApp.getMessStage("Не верно введено имя таблицы !").showAndWait();
+            return;
+        }
+        if (!validateColumnNames()) {
+            mainApp.getMessStage("Среди столбцов есть столбец с не корректным именем !").showAndWait();
             return;
         }
         boolean scvResult = XlsService.createDbTable(xlsFile, tableNameEdit.textProperty().get(), DataStorage.columnsMap);
-        boolean gsonResult = XlsService.saveGSONSchema(tableNameEdit.textProperty().get(), DataStorage.correspondencesTable);
+        String jsonFileName = xlsFile.getName();
+        int index = jsonFileName.lastIndexOf('.');
+        if(index > 0) jsonFileName = jsonFileName.substring(0, index);
+        jsonFileName =  jsonFileName +"-"+ Math.abs(new Random().nextInt()) + ".json";
+        String gsonResult = XlsService.saveGSONSchema(jsonFileName, tableNameEdit.textProperty().get(), DataStorage.correspondencesTable);
         if (scvResult){
             mainApp.getMessStage("Операция прошла успешно !").showAndWait();
         } else {
             mainApp.getMessStage("Данные не были сохранены в БД !").showAndWait();
         }
-        if (! gsonResult){
-            mainApp.getMessStage("JSON lанные не были сохранены на диск !").showAndWait();
+        if (gsonResult.isEmpty()){
+            mainApp.getMessStage("JSON данные не были сохранены на диск !").showAndWait();
+        } else {
+            mainApp.getMessStage("JSON сохранен в " + gsonResult).showAndWait();
         }
     }
 

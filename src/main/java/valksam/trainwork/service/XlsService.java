@@ -19,6 +19,7 @@ import valksam.trainwork.repository.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,8 +68,8 @@ public class XlsService {
         return csvFile != null && Repository.saveXlsData(tableName, csvFile);
     }
 
-    public static boolean saveGSONSchema(String tableName, ObservableList<Correspondence> correspondencesTable) {
-        boolean result = false;
+    public static String saveGSONSchema(String jsonFileName, String tableName, ObservableList<Correspondence> correspondencesTable) {
+        String result = "";
         ObjectMapper objectMapper = new ObjectMapper(){{
             SimpleModule simpleModule = new SimpleModule();
             simpleModule.addSerializer(StringProperty.class, new JsonSerializer<StringProperty>() {
@@ -83,12 +84,12 @@ public class XlsService {
                 StringWriter sw = new StringWriter();
                 )
         {
-            /*objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(tableName+".json"), correspondencesTable);*/
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(sw, correspondencesTable);
             StringBuilder sb = new StringBuilder();
             sb.append("{\n\t\""+tableName.toUpperCase()+"\": ").append(sw.toString()).append("\n}");
-            Files.write(Paths.get(tableName+".json"),sb.toString().getBytes());
-            result = true;
+            Path path = Paths.get(jsonFileName);
+            Files.write(path,sb.toString().getBytes());
+            result = path.toFile().getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
         }

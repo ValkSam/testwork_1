@@ -31,4 +31,20 @@ public class Correspondence {
     public void setColumnInDataTable(String columnInDataTable) {
         this.columnInDataTable.set(columnInDataTable);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Correspondence that = (Correspondence) o;
+
+        return !(columnInDataTable != null ? !columnInDataTable.get().equals(that.columnInDataTable.get()) : that.columnInDataTable != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return columnInDataTable != null ? columnInDataTable.get().hashCode() : 0;
+    }
 }
