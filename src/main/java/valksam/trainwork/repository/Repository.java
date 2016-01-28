@@ -34,4 +34,29 @@ public class Repository {
         }
         return result;
     }
+
+    public static boolean clear(String tableName) {
+        boolean result = false;
+        Session session = null;
+        try {
+            {
+                session = HibernateUtil.getSessionFactory().openSession();
+                Transaction transaction = session.beginTransaction();
+
+                session.createSQLQuery("DELETE FROM "+tableName).executeUpdate();
+
+                transaction.commit();
+            }
+            //
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.flush();
+                session.close();
+            }
+        }
+        return result;
+    }
 }

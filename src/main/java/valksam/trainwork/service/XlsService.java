@@ -106,6 +106,8 @@ public class XlsService {
                 xlsToTableMap.put(origFldName, tableFldName);
             }
 
+            Repository.clear(tableName);
+
             Sheet sheet = row.getSheet();
             Iterator<Row> iterator = sheet.iterator();
             for (iterator.next(); iterator.hasNext(); ) {
