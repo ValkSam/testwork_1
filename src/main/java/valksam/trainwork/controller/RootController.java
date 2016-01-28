@@ -108,8 +108,10 @@ public class RootController {
 
     private boolean makeMappingColumnsAndFields(String tableName) {
         boolean result = false;
-        List<String> fileds = new ArrayList<>();
         try {
+            for (Correspondence correspondence:DataStorage.correspondencesTable){
+                correspondence.setColumnInDataTable("");
+            }
             Class clazz = Class.forName(Tables.valueOf(tableNameCombo.getValue().toString()).getClassName());
             List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
             for (Field field : fields) {
@@ -170,6 +172,7 @@ public class RootController {
         if (index > 0) jsonFileName = jsonFileName.substring(0, index);
         jsonFileName = jsonFileName + "-" + Math.abs(new Random().nextInt()) + ".json";
         String gsonResult = XlsService.saveGSONSchema(xlsFile.getAbsolutePath(), jsonFileName, tableName, DataStorage.correspondencesTable);
+
         if (scvResult) {
             mainApp.getMessStage("Операция прошла успешно !").showAndWait();
         } else {

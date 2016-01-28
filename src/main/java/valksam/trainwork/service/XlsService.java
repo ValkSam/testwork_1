@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.hibernate.TypeMismatchException;
 import valksam.trainwork.controller.DataStorage;
 import valksam.trainwork.dto.MappingInfoItem;
 import valksam.trainwork.dto.TableMapInfo;
@@ -74,14 +74,8 @@ public class XlsService {
                 .collect(Collectors.toList());
     }
 
-    private static File saveXlsToDb(File xlsFile, Map<Integer, String> columnMap, Table table) {
-        File result = null;
-        try {
-            result = File.createTempFile("tmp", ".csv");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    private static Boolean saveXlsToDb(File xlsFile, Map<Integer, String> columnMap, Table table, String tableName) {
+        Boolean result = false;
         try (
                 InputStream in = new FileInputStream(xlsFile);
                 HSSFWorkbook wb = new HSSFWorkbook(in);
@@ -118,32 +112,33 @@ public class XlsService {
                 Row currentRow = iterator.next();
                 for (Map.Entry<Integer, String> entry : columnMap.entrySet()) {
                     Cell cell = currentRow.getCell(entry.getKey());
-                    Field field = table.getClass().getDeclaredField(xlsToTableMap.get(entry.getKey()));
-                    if (cell == null) {
+                    Field field = table.getClass().getDeclaredField(xlsToTableMap.get(entry.getValue()));
+                    field.setAccessible(true);
+                    if (cell == null || "".equals(cell.toString())) {
                         field.set(table, null);
                         continue;
                     }
                     switch (field.getType().getName()) {
-                        case "String": {
-                            field.set(table, cell.getStringCellValue());
+                        case "java.lang.String": {
+                            field.set(table, cell.toString());
                             break;
                         }
-                        case "Integer": {
-                            field.set(table, cell.getNumericCellValue());
+                        case "java.lang.Integer": {
+                            field.set(table, Double.valueOf(cell.toString()).intValue());
                             break;
                         }
-                        case "Boolean": {
-                            field.set(table, cell.getBooleanCellValue());
-                            break;
+                        default: {
+                            throw new TypeMismatchException("Данные в таблице не соответсвуют типу поля: " +
+                                    "Лист: " + cell.getSheet().getSheetName() +
+                                    " Строка: " + (cell.getRowIndex() + 1) +
+                                    " Столбец: " + (cell.getColumnIndex() + 1));
                         }
                     }
                 }
-                System.out.println(table);
+                Repository.save(table);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            result = null;
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+            result = true;
+        } catch (IOException | NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return result;
@@ -151,11 +146,8 @@ public class XlsService {
 
 
     public static boolean createDbTable(File xlsFile, String tableName, Map<Integer, String> columnMap) {
-        /*File csvFile = createCsv(xlsFile, columnMap);
-        return csvFile != null && Repository.saveXlsData(tableName, csvFile);*/
-        Table table  = TableFactory.getEmptyConcreteTableInstance(tableName);
-        saveXlsToDb(xlsFile, columnMap, table);
-        return true;
+        Table table = TableFactory.getEmptyConcreteTableInstance(tableName);
+        return saveXlsToDb(xlsFile, columnMap, table, tableName);
     }
 
     public static String saveGSONSchema(String xlsFileName, String jsonFileName, String tableName, ObservableList<Correspondence> correspondencesTable) {
@@ -186,90 +178,6 @@ public class XlsService {
             result = path.toFile().getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        return result;
-    }
-
-    private static File createCsv(File xlsFile, Map<Integer, String> columnMap) {
-        File result = null;
-        try {
-            result = File.createTempFile("tmp", ".csv");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-        try (
-                InputStream in = new FileInputStream(xlsFile);
-                HSSFWorkbook wb = new HSSFWorkbook(in);
-                BufferedWriter out = new BufferedWriter(new FileWriter(result));
-        ) {
-            Row row = detectFirstRowWithData(wb);
-
-            if (row == null) {
-                throw new RuntimeException("Не удается обработать файл. Возможно файл был изменен");
-            }
-
-            StringBuilder rowForWrite = new StringBuilder();
-            for (Map.Entry<Integer, String> entry : columnMap.entrySet()) {
-                if (!rowForWrite.toString().equals("")) {
-                    rowForWrite.append(',');
-                }
-                String origFldName = entry.getValue();
-                String newFldName = "";
-                boolean f = false;
-                for (Correspondence correspondence : DataStorage.correspondencesTable) {
-                    if (correspondence.getColumnInFile().get().equals(origFldName)) {
-                        newFldName = correspondence.getColumnInDataTable().get();
-                        f = true;
-                        break;
-                    }
-                }
-                if (!f) {
-                    throw new RuntimeException("Не удается обработать файл. Возможно файл был изменен");
-                }
-                rowForWrite.append('"').append(newFldName).append('"');
-            }
-            out.write(rowForWrite.toString());
-            out.newLine();
-
-            Sheet sheet = row.getSheet();
-            Iterator<Row> iterator = sheet.iterator();
-            for (iterator.next(); iterator.hasNext(); ) {
-                rowForWrite = new StringBuilder();
-                Row currentRow = iterator.next();
-                boolean first = true;
-                for (Map.Entry<Integer, String> entry : columnMap.entrySet()) {
-                    if (!first) {
-                        rowForWrite.append(',');
-                    }
-                    first = false;
-                    Cell cell = currentRow.getCell(entry.getKey());
-                    if (cell == null) {
-                        rowForWrite.append("");
-                        continue;
-                    }
-                    switch (cell.getCellType()) {
-                        case Cell.CELL_TYPE_STRING: {
-                            rowForWrite.append('"').append(cell.getStringCellValue()).append('"');
-                            break;
-                        }
-                        case Cell.CELL_TYPE_NUMERIC: {
-                            rowForWrite.append(cell.getNumericCellValue());
-                            break;
-                        }
-                        case Cell.CELL_TYPE_BOOLEAN: {
-                            rowForWrite.append('"').append(cell.getBooleanCellValue()).append('"');
-                            break;
-                        }
-                    }
-                }
-                out.write(rowForWrite.toString());
-                out.newLine();
-            }
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-            result = null;
         }
         return result;
     }

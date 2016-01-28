@@ -20,7 +20,7 @@ public class TableFactory {
         try {
             Class clazz = Class.forName(Tables.valueOf(tableName).getClassName());
             List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
-            switch (tableName.toUpperCase()){
+            switch (tableName.toUpperCase()) {
                 case "TABLE_1": {
                     return (Table_1) clazz.getConstructor().newInstance();
                 }
