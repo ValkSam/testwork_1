@@ -135,7 +135,7 @@ public class XlsService {
                         }
                     }
                 }
-                Repository.save(table);
+                if (! Repository.save(table)) return false;
             }
             result = true;
         } catch (IOException | NoSuchFieldException | IllegalAccessException e) {
