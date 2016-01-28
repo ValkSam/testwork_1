@@ -3,6 +3,7 @@ package valksam.trainwork.repository;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import valksam.trainwork.model.Tables;
 
 import java.io.File;
 
@@ -18,6 +19,8 @@ public class Repository {
             {
                 session = HibernateUtil.getSessionFactory().openSession();
                 Transaction transaction = session.beginTransaction();
+
+
                 String sql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '" + tableName + "' ";
                 Query query = session.createSQLQuery(sql);
                 //

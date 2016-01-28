@@ -22,6 +22,7 @@ import valksam.trainwork.model.Tables;
 import valksam.trainwork.repository.Repository;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -73,9 +74,88 @@ public class XlsService {
                 .collect(Collectors.toList());
     }
 
+    private static File saveXlsToDb(File xlsFile, Map<Integer, String> columnMap, Table table) {
+        File result = null;
+        try {
+            result = File.createTempFile("tmp", ".csv");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        try (
+                InputStream in = new FileInputStream(xlsFile);
+                HSSFWorkbook wb = new HSSFWorkbook(in);
+        ) {
+            Row row = detectFirstRowWithData(wb);
+
+            if (row == null) {
+                throw new RuntimeException("Не удается обработать файл. Возможно файл был изменен");
+            }
+
+            //список полей Таблицы в том поорядке как они в xls
+            Map<String, String> xlsToTableMap = new HashMap<>();
+
+            for (Map.Entry<Integer, String> entry : columnMap.entrySet()) {
+                String origFldName = entry.getValue();
+                String tableFldName = "";
+                boolean f = false;
+                for (Correspondence correspondence : DataStorage.correspondencesTable) {
+                    if (correspondence.getColumnInFile().get().equals(origFldName)) {
+                        tableFldName = correspondence.getColumnInDataTable().get();
+                        f = true;
+                        break;
+                    }
+                }
+                if (!f) {
+                    throw new RuntimeException("Не удается обработать файл. Возможно файл был изменен");
+                }
+                xlsToTableMap.put(origFldName, tableFldName);
+            }
+
+            Sheet sheet = row.getSheet();
+            Iterator<Row> iterator = sheet.iterator();
+            for (iterator.next(); iterator.hasNext(); ) {
+                Row currentRow = iterator.next();
+                for (Map.Entry<Integer, String> entry : columnMap.entrySet()) {
+                    Cell cell = currentRow.getCell(entry.getKey());
+                    Field field = table.getClass().getDeclaredField(xlsToTableMap.get(entry.getKey()));
+                    if (cell == null) {
+                        field.set(table, null);
+                        continue;
+                    }
+                    switch (field.getType().getName()) {
+                        case "String": {
+                            field.set(table, cell.getStringCellValue());
+                            break;
+                        }
+                        case "Integer": {
+                            field.set(table, cell.getNumericCellValue());
+                            break;
+                        }
+                        case "Boolean": {
+                            field.set(table, cell.getBooleanCellValue());
+                            break;
+                        }
+                    }
+                }
+                System.out.println(table);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            result = null;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
     public static boolean createDbTable(File xlsFile, String tableName, Map<Integer, String> columnMap) {
-        File csvFile = XlsService.createCsv(xlsFile, columnMap);
-        return csvFile != null && Repository.saveXlsData(tableName, csvFile);
+        /*File csvFile = createCsv(xlsFile, columnMap);
+        return csvFile != null && Repository.saveXlsData(tableName, csvFile);*/
+        Table table  = TableFactory.getEmptyConcreteTableInstance(tableName);
+        saveXlsToDb(xlsFile, columnMap, table);
+        return true;
     }
 
     public static String saveGSONSchema(String xlsFileName, String jsonFileName, String tableName, ObservableList<Correspondence> correspondencesTable) {
@@ -109,7 +189,6 @@ public class XlsService {
         }
         return result;
     }
-
 
     private static File createCsv(File xlsFile, Map<Integer, String> columnMap) {
         File result = null;

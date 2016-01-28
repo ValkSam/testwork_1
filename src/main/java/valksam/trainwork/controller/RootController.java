@@ -101,9 +101,9 @@ public class RootController {
         List<String> mappedFields = DataStorage.correspondencesTable
                 .stream()
                 .map(e -> e.getColumnInDataTable().get())
-                .filter(e->!"".equals(e))
+                .filter(e -> !"".equals(e))
                 .collect(Collectors.toList());
-        return mappedFields.size()==DataStorage.currTableFieldNameList.size();
+        return mappedFields.size() == DataStorage.currTableFieldNameList.size();
     }
 
     private boolean makeMappingColumnsAndFields(String tableName) {
@@ -123,7 +123,7 @@ public class RootController {
                 }
             }
             DataStorage.currTableFieldNameList.clear();
-            DataStorage.currTableFieldNameList.addAll((Collection)fields.stream().map(m->m.getName()).collect(Collectors.toList()));
+            DataStorage.currTableFieldNameList.addAll((Collection) fields.stream().map(m -> m.getName()).collect(Collectors.toList()));
             result = true;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -133,7 +133,7 @@ public class RootController {
     }
 
     @FXML
-    private void onTableNameChanged(){
+    private void onTableNameChanged() {
         String tableName = tableNameCombo.getValue().toString();
         if (!makeMappingColumnsAndFields(tableName)) {
             mainApp.getMessStage("Таблица " + tableName + " не найдена !").showAndWait();
@@ -155,12 +155,12 @@ public class RootController {
         //
         //делаем версию DataStorage.columnsMap без незакрепленных столбцов
         Map<Integer, String> finalColumnsMap = new TreeMap<>();
-        for(Map.Entry<Integer, String> entry:DataStorage.columnsMap.entrySet()){
+        for (Map.Entry<Integer, String> entry : DataStorage.columnsMap.entrySet()) {
             if (!"".equals(DataStorage.correspondencesTable
                     .stream()
                     .filter(m -> m.getColumnInFile().get().toUpperCase().equals(entry.getValue().toUpperCase()))
-                    .findFirst().get().getColumnInDataTable().get())){
-                finalColumnsMap.put(entry.getKey(),entry.getValue());
+                    .findFirst().get().getColumnInDataTable().get())) {
+                finalColumnsMap.put(entry.getKey(), entry.getValue());
             }
         }
         //

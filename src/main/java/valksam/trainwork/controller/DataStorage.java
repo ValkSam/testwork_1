@@ -3,6 +3,7 @@ package valksam.trainwork.controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import valksam.trainwork.model.Correspondence;
+import valksam.trainwork.model.Table;
 
 import java.util.ArrayList;
 import java.util.List;
