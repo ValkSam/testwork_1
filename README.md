@@ -46,6 +46,10 @@
 	с типов сопоставляемых полей таблицы</SPAN></SPAN></FONT></FONT></FONT></P>
 	<P STYLE="margin-bottom: 0cm; background: transparent; font-style: normal; font-weight: normal; line-height: 138%; orphans: 1">
 	</P>
+	<LI><P STYLE="margin-bottom: 0cm; background: transparent; font-style: normal; font-weight: normal; line-height: 138%; orphans: 1">
+	<FONT COLOR="#000000"><FONT FACE="Arial"><FONT SIZE=2 STYLE="font-size: 9pt"><SPAN STYLE="background: transparent"><SPAN LANG="ru-RU">Еще важное ограничение: </SPAN><SPAN LANG="en-US"> </SPAN><SPAN LANG="ru-RU">если в БД таблицы не существует, то она будет создана, но если она уже есть, то ее структура должна соответствовать таблице-сущности</SPAN></SPAN></FONT></FONT></FONT></P>
+	<P STYLE="margin-bottom: 0cm; background: transparent; font-style: normal; font-weight: normal; line-height: 138%; orphans: 1">
+	</P>
 </UL>
 </BODY>
 </HTML>
