@@ -20,14 +20,7 @@ public class TableFactory {
         try {
             Class clazz = Class.forName(Tables.valueOf(tableName).getClassName());
             List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
-            switch (tableName.toUpperCase()) {
-                case "TABLE_1": {
-                    return (Table_1) clazz.getConstructor().newInstance();
-                }
-                case "TABLE_2": {
-                    return (Table_2) clazz.getConstructor().newInstance();
-                }
-            }
+            return (Table) clazz.getConstructor().newInstance();
         } catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }
