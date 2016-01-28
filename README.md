@@ -190,20 +190,24 @@
 	формируется GSON объект для сохранения на диске. Теперь он имеет
 	вид:</SPAN></FONT></FONT></FONT></P>
 </UL>
-<PRE STYLE="margin-left: 2.44cm"><FONT COLOR="#000000"><FONT FACE="Courier New">{</FONT></FONT>
-<FONT COLOR="#000000">  <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;XlsFileName&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;C:</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>Users</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>Valk</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>Desktop</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>bbb.xls&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
-<FONT COLOR="#000000">  <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;TableName&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;TABLE_2&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
-<FONT COLOR="#000000">  <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;Correspondences&quot; </B></FONT></FONT><FONT FACE="Courier New">: [ {</FONT></FONT>
-<FONT COLOR="#000000">    <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;source&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;Field2_1&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
-<FONT COLOR="#000000">    <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;destination&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;field2_1&quot;</B></FONT></FONT></FONT>
-<FONT COLOR="#000000"><FONT COLOR="#008000">  </FONT><FONT FACE="Courier New">}, {</FONT></FONT>
-<FONT COLOR="#000000">    <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;source&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;ффф&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
-<FONT COLOR="#000000">    <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;destination&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;field2_2&quot;</B></FONT></FONT></FONT>
-<FONT COLOR="#000000"><FONT COLOR="#008000">  </FONT><FONT FACE="Courier New">}, {</FONT></FONT>
-<FONT COLOR="#000000">    <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;source&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;Field2_2&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
-<FONT COLOR="#000000">    <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;destination&quot; </B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;field2_3&quot;</B></FONT></FONT></FONT></PRE>
-<UL>
-	<PRE STYLE="background: transparent; font-style: normal; font-weight: normal; line-height: 138%; widows: 1"><FONT COLOR="#000000"><SPAN STYLE="background: transparent"><FONT COLOR="#008000">  </FONT><FONT FACE="Arial"><FONT SIZE=2 STYLE="font-size: 9pt"><FONT FACE="Courier New">} ]</FONT></SPAN></FONT></FONT></FONT></PRE>
-</UL>
+<PRE STYLE="margin-left: 3.75cm; background: #ffffff"><FONT COLOR="#000000">{</FONT>
+<FONT COLOR="#000000">  <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;XlsFileName&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;C:</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>Users</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>Valk</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>Desktop</B></FONT></FONT><FONT COLOR="#000080"><FONT FACE="Courier New"><B>\\</B></FONT></FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>bbb.xls&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
+<FONT COLOR="#000000">  <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;TableName&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;TABLE_2&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
+<FONT COLOR="#000000">  <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;Correspondences&quot;</B></FONT></FONT><FONT FACE="Courier New">: [</FONT></FONT>
+<FONT COLOR="#000000">    <FONT FACE="Courier New">{</FONT></FONT>
+<FONT COLOR="#000000">      <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;source&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;Field2_1&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
+<FONT COLOR="#000000">      <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;destination&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;field2_1&quot;</B></FONT></FONT></FONT>
+<FONT COLOR="#000000"><FONT COLOR="#008000">    </FONT><FONT FACE="Courier New">},</FONT></FONT>
+<FONT COLOR="#000000">    <FONT FACE="Courier New">{</FONT></FONT>
+<FONT COLOR="#000000">      <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;source&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;ффф&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
+<FONT COLOR="#000000">      <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;destination&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;field2_2&quot;</B></FONT></FONT></FONT>
+<FONT COLOR="#000000"><FONT COLOR="#008000">    </FONT><FONT FACE="Courier New">},</FONT></FONT>
+<FONT COLOR="#000000">    <FONT FACE="Courier New">{</FONT></FONT>
+<FONT COLOR="#000000">      <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;source&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;Field2_2&quot;</B></FONT></FONT><FONT FACE="Courier New">,</FONT></FONT>
+<FONT COLOR="#000000">      <FONT COLOR="#660e7a"><FONT FACE="Courier New"><B>&quot;destination&quot;</B></FONT></FONT><FONT FACE="Courier New">: </FONT><FONT COLOR="#008000"><FONT FACE="Courier New"><B>&quot;field2_3&quot;</B></FONT></FONT></FONT>
+<FONT COLOR="#000000"><FONT COLOR="#008000">    </FONT><FONT FACE="Courier New">}</FONT></FONT>
+<FONT COLOR="#000000">  <FONT FACE="Courier New">]</FONT></FONT>
+<FONT COLOR="#000000"><FONT FACE="Courier New">}</FONT></FONT>
+</PRE>
 </BODY>
 </HTML>
