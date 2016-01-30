@@ -1,6 +1,5 @@
 package valksam.trainwork.repository;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import valksam.trainwork.model.Table;
@@ -43,7 +42,7 @@ public class Repository {
                 session = HibernateUtil.getSessionFactory().openSession();
                 Transaction transaction = session.beginTransaction();
 
-                session.createSQLQuery("DELETE FROM "+tableName).executeUpdate();
+                session.createSQLQuery("DELETE FROM " + tableName).executeUpdate();
 
                 transaction.commit();
             }

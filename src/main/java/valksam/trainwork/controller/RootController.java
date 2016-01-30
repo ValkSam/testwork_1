@@ -109,7 +109,7 @@ public class RootController {
     private boolean makeMappingColumnsAndFields(String tableName) {
         boolean result = false;
         try {
-            for (Correspondence correspondence:DataStorage.correspondencesTable){
+            for (Correspondence correspondence : DataStorage.correspondencesTable) {
                 correspondence.setColumnInDataTable("");
             }
             Class clazz = Class.forName(Tables.valueOf(tableNameCombo.getValue().toString()).getClassName());
