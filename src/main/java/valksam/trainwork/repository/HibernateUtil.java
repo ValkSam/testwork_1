@@ -11,19 +11,18 @@ import valksam.trainwork.model.Table_2;
 public class HibernateUtil {
     private static SessionFactory sessionFactory;
 
-    private static SessionFactory buildSessionFactory() {
+    private static void buildSessionFactory() {
         Configuration configuration = new Configuration().configure("/db/hibernate.cfg.xml");
-        SessionFactory sessionFactory = configuration.buildSessionFactory();
-        return sessionFactory;
+        sessionFactory = configuration.buildSessionFactory();
     }
 
     public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) sessionFactory = buildSessionFactory();
+        if (sessionFactory == null) buildSessionFactory();
         return sessionFactory;
     }
 
     public static void shutdown(){
-        getSessionFactory().close();
+        if (sessionFactory != null) getSessionFactory().close();
     }
 
 }
