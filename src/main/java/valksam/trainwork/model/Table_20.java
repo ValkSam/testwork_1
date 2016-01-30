@@ -10,8 +10,8 @@ import javax.persistence.Entity;
  */
 
 @Entity
-@javax.persistence.Table(name = "TABLE_2")
-public class Table_2 extends Table {
+@javax.persistence.Table(name = "TABLE_20")
+public class Table_20 extends Table {
     @Column(name = "field2_1")
     private String field2_1;
 
@@ -23,7 +23,7 @@ public class Table_2 extends Table {
 
     @Override
     public String toString() {
-        return "Table_2{" +
+        return "Table_20{" +
                 "field2_1='" + field2_1 + '\'' +
                 ", field2_2='" + field2_2 + '\'' +
                 ", field2_3='" + field2_3 + '\'' +

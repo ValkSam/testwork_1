@@ -16,8 +16,8 @@
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <mapping class="valksam.trainwork.model.Table_1"/>
-        <mapping class="valksam.trainwork.model.Table_2"/>
+        <mapping class="valksam.trainwork.model.Table_10"/>
+        <mapping class="valksam.trainwork.model.Table_20"/>
         <!-- -->
         <!--<property name="current_session_context_class">thread</property>-->
         <!--<property name="c3p0.min_size">5</property>

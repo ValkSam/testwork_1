@@ -2,11 +2,8 @@ package valksam.trainwork.service;
 
 
 import valksam.trainwork.model.Table;
-import valksam.trainwork.model.Table_1;
-import valksam.trainwork.model.Table_2;
 import valksam.trainwork.model.Tables;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
